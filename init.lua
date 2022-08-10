@@ -102,7 +102,7 @@ local config = {
           local opts = {
             tools = { -- rust-tools options
               autoSetHints = true,
-              hover_with_actions = true,
+              -- hover_with_actions = true,
               inlay_hints = {
                 only_current_line = false,
                 show_parameter_hints = true,
@@ -113,7 +113,7 @@ local config = {
           }
           require("rust-tools").setup(opts)
           -- set inlay hints
-          require("rust-tools.inlay_hints").set_inlay_hints()
+          -- require("rust-tools.inlay_hints").set_inlay_hints()
         end,
       },
     },
