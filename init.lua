@@ -132,7 +132,10 @@ local config = {
         config = function()
           require("gruvbox").setup {
             overrides = {
-              StatusLine = { bg = "#000000" },
+              StatusLine = {
+                bg = "#303030",
+                fg = "#887d73",
+              },
             },
           }
         end,
