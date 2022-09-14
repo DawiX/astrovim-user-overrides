@@ -19,7 +19,8 @@ local config = {
   },
 
   -- Set colorscheme
-  colorscheme = "default_theme",
+  -- colorscheme = "default_theme",
+  colorscheme = "gruvbox",
 
   -- Override highlight groups in any theme
   highlights = {
@@ -120,6 +121,22 @@ local config = {
           -- require("rust-tools.inlay_hints").set_inlay_hints()
         end,
       },
+      {
+        "catppuccin/nvim",
+        as = "catppuccin",
+        config = function() require("catppuccin").setup {} end,
+      },
+      {
+        "ellisonleao/gruvbox.nvim",
+        as = "gruvbox",
+        config = function()
+          require("gruvbox").setup {
+            overrides = {
+              StatusLine = { bg = "#000000" },
+            },
+          }
+        end,
+      },
     },
     -- All other entries override the setup() call for default plugins
     ["null-ls"] = function(config)
@@ -130,7 +147,7 @@ local config = {
       config.sources = {
         -- Set a formatter
         null_ls.builtins.formatting.stylua,
-        null_ls.builtins.formatting.prettier,
+        -- null_ls.builtins.formatting.prettier,
       }
       -- set up null-ls's on_attach function
       config.on_attach = function(client)
@@ -154,7 +171,8 @@ local config = {
     },
     -- use mason-tool-installer to configure DAP/Formatters/Linter installation
     ["mason-tool-installer"] = {
-      ensure_installed = { "prettier", "stylua" },
+      -- ensure_installed = { "prettier", "stylua" },
+      ensure_installed = { "stylua" },
     },
     packer = {
       compile_path = vim.fn.stdpath "data" .. "/packer_compiled.lua",
