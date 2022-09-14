@@ -136,6 +136,21 @@ local config = {
                 bg = "#303030",
                 fg = "#887d73",
               },
+              NeoTreeGitModified = {
+                bg = "#282828",
+                fg = "#83a598",
+              },
+              NeoTreeGitAdded = {
+                bg = "#282828",
+                fg = "#91e043",
+              },
+              NeoTreeGitDeleted = {
+                bg = "#282828",
+                fg = "#fb4934",
+              },
+              NeoTreeGitIgnored = {
+                bg = "#282828",
+              },
             },
           }
         end,
