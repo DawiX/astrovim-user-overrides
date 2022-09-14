@@ -155,6 +155,35 @@ local config = {
           }
         end,
       },
+      {
+        "NTBBloodbath/rest.nvim",
+        requires = { "nvim-lua/plenary.nvim" },
+        config = function()
+          require("rest-nvim").setup {
+            result_split_horizontal = false,
+            result_split_in_place = false,
+            skip_ssl_verification = false,
+            encode_url = true,
+            highlight = {
+              enabled = true,
+              timeout = 150,
+            },
+            result = {
+              show_url = true,
+              show_http_info = true,
+              show_headers = true,
+              formatters = {
+                json = "jq",
+                -- html = function(body) return vim.fn.system({ "tidy", "-i", "-q", "-" }, body) end,
+              },
+            },
+            jump_to_request = false,
+            env_file = ".env",
+            custom_dynamic_variables = {},
+            yank_dry_run = true,
+          }
+        end,
+      },
     },
     -- All other entries override the setup() call for default plugins
     ["null-ls"] = function(config)
@@ -284,6 +313,10 @@ local config = {
       ["<leader>bp"] = { "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle prev tab" },
       ["<leader>bl"] = { "<cmd>BufferLineCloseLeft<cr>", desc = "Close tabs to the left" },
       ["<leader>br"] = { "<cmd>BufferLineCloseRight<cr>", desc = "close tabs to the right" },
+      -- mappints under group name "RestClient"
+      ["<leader>rr"] = { "<Plug>RestNvim<cr>", desc = "Run request under cursor" },
+      ["<leader>rp"] = { "<Plug>RestNvimPreview<cr>", desc = "Preview request cURL command" },
+      ["<leader>rl"] = { "<Plug>RestNvimLast<cr>", desc = "Re-run last request" },
       -- quick save
       -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
     },
@@ -304,6 +337,7 @@ local config = {
           -- third key is the key to bring up next level and its displayed
           -- group name in which-key top level menu
           ["b"] = { name = "Buffer" },
+          ["r"] = { name = "RestClient" },
         },
       },
     },
