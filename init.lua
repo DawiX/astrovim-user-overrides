@@ -109,6 +109,9 @@ local config = {
             server = astronvim.lsp.server_settings "rust_analyzer", -- get the server settings and built in capabilities/on_attach
             tools = {
               autoSetHints = true,
+              hover_actions = {
+                auto_focus = true,
+              },
             },
           }
           require("rust-tools").inlay_hints.enable()
@@ -310,10 +313,11 @@ local config = {
       ["<leader>bp"] = { "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle prev tab" },
       ["<leader>bl"] = { "<cmd>BufferLineCloseLeft<cr>", desc = "Close tabs to the left" },
       ["<leader>br"] = { "<cmd>BufferLineCloseRight<cr>", desc = "close tabs to the right" },
-      -- mappints under group name "RestClient"
+      -- mappints under group name "Rust/RestClient"
       ["<leader>rr"] = { "<Plug>RestNvim<cr>", desc = "Run request under cursor" },
       ["<leader>rp"] = { "<Plug>RestNvimPreview<cr>", desc = "Preview request cURL command" },
       ["<leader>rl"] = { "<Plug>RestNvimLast<cr>", desc = "Re-run last request" },
+      ["<leader>rh"] = { "<cmd>RustHoverActions<cr>", desc = "Rust Hover Actions" },
       -- quick save
       -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
     },
@@ -334,7 +338,7 @@ local config = {
           -- third key is the key to bring up next level and its displayed
           -- group name in which-key top level menu
           ["b"] = { name = "Buffer" },
-          ["r"] = { name = "RestClient" },
+          ["r"] = { name = "Rust/RestClient" },
         },
       },
     },
