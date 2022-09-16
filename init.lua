@@ -46,6 +46,7 @@ local config = {
     },
     g = {
       mapleader = " ", -- sets vim.g.mapleader
+      terraform_fmt_on_save = 1,
     },
   },
 
@@ -218,7 +219,29 @@ local config = {
     -- use mason-tool-installer to configure DAP/Formatters/Linter installation
     ["mason-tool-installer"] = {
       -- ensure_installed = { "prettier", "stylua" },
-      ensure_installed = { "stylua" },
+      ensure_installed = {
+        "stylua",
+        "ansible-language-server",
+        "autopep8",
+        "bash-language-server",
+        "cfn-lint",
+        "csharp-language-server",
+        "gopls",
+        "json-lsp",
+        "lua-language-server",
+        "marksman",
+        "prettier",
+        "pyright",
+        "rust-analyzer",
+        "shellcheck",
+        "shellharden",
+        "terraform-ls",
+        "tflint",
+        "typescript-language-server",
+        "yaml-language-server",
+        "yamlfmt",
+        "yamllint",
+      },
     },
     packer = {
       compile_path = vim.fn.stdpath "data" .. "/packer_compiled.lua",
@@ -318,6 +341,8 @@ local config = {
       ["<leader>rp"] = { "<Plug>RestNvimPreview<cr>", desc = "Preview request cURL command" },
       ["<leader>rl"] = { "<Plug>RestNvimLast<cr>", desc = "Re-run last request" },
       ["<leader>rh"] = { "<cmd>RustHoverActions<cr>", desc = "Rust Hover Actions" },
+      -- mappings under group name "Terraform/Terragrunt"
+      ["<leader>Ti"] = { ":!terraform init<CR>", desc = "Terraform init" },
       -- quick save
       -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
     },
@@ -339,6 +364,7 @@ local config = {
           -- group name in which-key top level menu
           ["b"] = { name = "Buffer" },
           ["r"] = { name = "Rust/RestClient" },
+          ["T"] = { name = "Terraform/Terragrunt" },
         },
       },
     },
