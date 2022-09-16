@@ -103,22 +103,15 @@ local config = {
       { "hashivim/vim-terraform" },
       {
         "simrat39/rust-tools.nvim",
+        after = "mason-lspconfig.nvim", -- make sure to load after mason-lspconfig
         config = function()
-          local opts = {
-            tools = { -- rust-tools options
+          require("rust-tools").setup {
+            server = astronvim.lsp.server_settings "rust_analyzer", -- get the server settings and built in capabilities/on_attach
+            tools = {
               autoSetHints = true,
-              -- hover_with_actions = true,
-              inlay_hints = {
-                only_current_line = false,
-                show_parameter_hints = true,
-                parameter_hints_prefix = "<-",
-                other_hints_prefix = "=>",
-              },
             },
           }
-          require("rust-tools").setup(opts)
-          -- set inlay hints
-          -- require("rust-tools.inlay_hints").set_inlay_hints()
+          require("rust-tools").inlay_hints.enable()
         end,
       },
       {
@@ -214,7 +207,10 @@ local config = {
     },
     -- use mason-lspconfig to configure LSP installations
     ["mason-lspconfig"] = {
-      ensure_installed = { "sumneko_lua" },
+      ensure_installed = {
+        "sumneko_lua",
+        "rust_analyzer",
+      },
     },
     -- use mason-tool-installer to configure DAP/Formatters/Linter installation
     ["mason-tool-installer"] = {
@@ -253,6 +249,7 @@ local config = {
 
   -- Extend LSP configuration
   lsp = {
+    skip_setup = { "rust-analyzer" }, -- skip lsp setup because rust-tools will do it itself
     -- enable servers that you already have installed without mason
     servers = {
       -- "pyright"
