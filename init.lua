@@ -36,6 +36,13 @@ local config = {
       terraform_fmt_on_save = 1
     },
   },
+  -- If you need more control, you can use the function()...end notation
+  options = function(local_vim)
+    -- vim.opt.iskeyword:append("-") equivalent:
+    local_vim.opt.iskeyword = vim.opt.iskeyword + {"-"}-- consider string-string as whole word
+    return local_vim
+  end,
+
   header = {
     "    ███    ██ ██    ██ ██ ███    ███",
     "    ████   ██ ██    ██ ██ ████  ████",
@@ -140,6 +147,7 @@ local config = {
       { "python-mode/python-mode" },
       { "hashivim/vim-terraform" },
       { "tpope/vim-surround" },
+      { "vim-scripts/ReplaceWithRegister" }, -- replace with register contents using motion (gr + motion)
       {
         "simrat39/rust-tools.nvim",
         after = "mason-lspconfig.nvim", -- make sure to load after mason-lspconfig
