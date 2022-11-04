@@ -139,6 +139,7 @@ local config = {
     init = {
       { "python-mode/python-mode" },
       { "hashivim/vim-terraform" },
+      { "tpope/vim-surround" },
       {
         "simrat39/rust-tools.nvim",
         after = "mason-lspconfig.nvim", -- make sure to load after mason-lspconfig
