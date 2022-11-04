@@ -11,6 +11,8 @@ local config = {
     pin_plugins = nil, -- nil, true, false (nil will pin plugins on stable only)
     skip_prompts = false, -- skip prompts about breaking changes
     show_changelog = true, -- show the changelog after performing an update
+    auto_reload = false, -- automatically reload and sync packer after a successful update
+    auto_quit = false, -- automatically quit the current session after a successful update
     -- remotes = { -- easily add new remotes to track
     --   ["remote_name"] = "https://remote_url.come/repo.git", -- full remote url
     --   ["remote2"] = "github_user/repo", -- GitHub user/repo shortcut,
@@ -18,49 +20,84 @@ local config = {
     -- },
   },
 
-  -- Set colorscheme
-  -- colorscheme = "default_theme",
+  -- Set colorscheme to use
   colorscheme = "gruvbox",
 
-  -- Override highlight groups in any theme
+  -- Add highlight groups in any theme
   highlights = {
-    -- duskfox = { -- a table of overrides
+    -- init = { -- this table overrides highlights in all themes
+    --   Normal = { bg = "#000000" },
+    -- }
+    -- duskfox = { -- a table of overrides/changes to the duskfox theme
     --   Normal = { bg = "#000000" },
     -- },
-    default_theme = function(highlights) -- or a function that returns one
-      local C = require "default_theme.colors"
-
-      highlights.Normal = { fg = C.fg, bg = C.bg }
-      return highlights
-    end,
   },
 
-  -- set vim options here (vim.<first_key>.<second_key> =  value)
+  -- set vim options here (vim.<first_key>.<second_key> = value)
   options = {
     opt = {
+      -- set to true or false etc.
       relativenumber = true, -- sets vim.opt.relativenumber
-      expandtab = true,
-      smartindent = true,
-      tabstop = 2,
-      shiftwidth = 2,
+      number = true, -- sets vim.opt.number
+      spell = false, -- sets vim.opt.spell
+      signcolumn = "auto", -- sets vim.opt.signcolumn to auto
+      wrap = false, -- sets vim.opt.wrap
     },
     g = {
       mapleader = " ", -- sets vim.g.mapleader
-      terraform_fmt_on_save = 1,
+      autoformat_enabled = true, -- enable or disable auto formatting at start (lsp.formatting.format_on_save must be enabled)
+      cmp_enabled = true, -- enable completion at start
+      autopairs_enabled = true, -- enable autopairs at start
+      diagnostics_enabled = true, -- enable diagnostics at start
+      status_diagnostics_enabled = true, -- enable diagnostics in statusline
+      icons_enabled = true, -- disable icons in the UI (disable if no nerd font is available, requires :PackerSync after changing)
+      terraform_fmt_on_save = 1
     },
+  },
+  -- If you need more control, you can use the function()...end notation
+  -- options = function(local_vim)
+  --   local_vim.opt.relativenumber = true
+  --   local_vim.g.mapleader = " "
+  --   local_vim.opt.whichwrap = vim.opt.whichwrap - { 'b', 's' } -- removing option from list
+  --   local_vim.opt.shortmess = vim.opt.shortmess + { I = true } -- add to option list
+  --
+  --   return local_vim
+  -- end,
+
+  header = {
+    "    ███    ██ ██    ██ ██ ███    ███",
+    "    ████   ██ ██    ██ ██ ████  ████",
+    "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
+    "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
+    "    ██   ████   ████   ██ ██      ██",
   },
 
   -- Default theme configuration
   default_theme = {
-    diagnostics_style = { italic = true },
-    -- Modify the color table
+    -- Modify the color palette for the default theme
     colors = {
       fg = "#abb2bf",
+      bg = "#1e222a",
     },
-    plugins = { -- enable or disable extra plugin highlighting
+    highlights = function(hl) -- or a function that returns a new table of colors to set
+      local C = require "default_theme.colors"
+
+      hl.Normal = { fg = C.fg, bg = C.bg }
+
+      -- New approach instead of diagnostic_style
+      hl.DiagnosticError.italic = true
+      hl.DiagnosticHint.italic = true
+      hl.DiagnosticInfo.italic = true
+      hl.DiagnosticWarn.italic = true
+
+      return hl
+    end,
+    -- enable or disable highlighting for extra plugins
+    plugins = {
       aerial = true,
       beacon = false,
       bufferline = true,
+      cmp = true,
       dashboard = true,
       highlighturl = true,
       hop = false,
@@ -73,33 +110,132 @@ local config = {
       rainbow = true,
       symbols_outline = false,
       telescope = true,
+      treesitter = true,
       vimwiki = false,
       ["which-key"] = true,
     },
   },
 
-  -- Disable AstroNvim ui features
-  ui = {
-    nui_input = true,
-    telescope_select = true,
+  -- Diagnostics configuration (for vim.diagnostics.config({...})) when diagnostics are on
+  diagnostics = {
+    virtual_text = true,
+    underline = true,
+  },
+
+  -- Extend LSP configuration
+  lsp = {
+    skip_setup = { "rust-analyzer" }, -- skip lsp setup because rust-tools will do it itself
+    -- enable servers that you already have installed without mason
+    servers = {
+      -- "pyright"
+    },
+    formatting = {
+      -- control auto formatting on save
+      format_on_save = {
+        enabled = true, -- enable or disable format on save globally
+        allow_filetypes = { -- enable format on save for specified filetypes only
+          -- "go",
+        },
+        ignore_filetypes = { -- disable format on save for specified filetypes
+          -- "python",
+        },
+      },
+      disabled = { -- disable formatting capabilities for the listed language servers
+        -- "sumneko_lua",
+      },
+      timeout_ms = 1000, -- default format timeout
+      -- filter = function(client) -- fully override the default formatting function
+      --   return true
+      -- end
+    },
+    -- easily add or disable built in mappings added during LSP attaching
+    mappings = {
+      n = {
+        -- ["<leader>lf"] = false -- disable formatting keymap
+      },
+    },
+    -- add to the global LSP on_attach function
+    -- on_attach = function(client, bufnr)
+    -- end,
+
+    -- override the mason server-registration function
+    -- server_registration = function(server, opts)
+    --   require("lspconfig")[server].setup(opts)
+    -- end,
+
+    -- Add overrides for LSP server settings, the keys are the name of the server
+    ["server-settings"] = {
+      -- example for addings schemas to yamlls
+      -- yamlls = { -- override table for require("lspconfig").yamlls.setup({...})
+      --   settings = {
+      --     yaml = {
+      --       schemas = {
+      --         ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*.{yml,yaml}",
+      --         ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
+      --         ["http://json.schemastore.org/ansible-stable-2.9"] = "roles/tasks/*.{yml,yaml}",
+      --       },
+      --     },
+      --   },
+      -- },
+    },
+  },
+
+  -- Mapping data with "desc" stored directly by vim.keymap.set().
+  --
+  -- Please use this mappings table to set keyboard mapping since this is the
+  -- lower level configuration and more robust one. (which-key will
+  -- automatically pick-up stored data by this setting.)
+  mappings = {
+    -- first key is the mode
+    n = {
+      -- second key is the lefthand side of the map
+      -- mappings seen under group name "Buffer"
+      ["<leader>bb"] = { "<cmd>tabnew<cr>", desc = "New tab" },
+      ["<leader>bc"] = { "<cmd>BufferLinePickClose<cr>", desc = "Pick to close" },
+      ["<leader>bj"] = { "<cmd>BufferLinePick<cr>", desc = "Pick to jump" },
+      ["<leader>bt"] = { "<cmd>BufferLineSortByTabs<cr>", desc = "Sort by tabs" },
+      ["<leader>bn"] = { "<cmd>BufferLineCycleNext<cr>", desc = "Cycle next tab" },
+      ["<leader>bp"] = { "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle prev tab" },
+      ["<leader>bl"] = { "<cmd>BufferLineCloseLeft<cr>", desc = "Close tabs to the left" },
+      ["<leader>br"] = { "<cmd>BufferLineCloseRight<cr>", desc = "close tabs to the right" },
+      -- mappints under group name "Rust/RestClient"
+      ["<leader>rr"] = { "<Plug>RestNvim<cr>", desc = "Run request under cursor" },
+      ["<leader>rp"] = { "<Plug>RestNvimPreview<cr>", desc = "Preview request cURL command" },
+      ["<leader>rl"] = { "<Plug>RestNvimLast<cr>", desc = "Re-run last request" },
+      ["<leader>rh"] = { "<cmd>RustHoverActions<cr>", desc = "Rust Hover Actions" },
+      -- mappings under group name "Terraform/Terragrunt"
+      ["<leader>Ti"] = { ":!terraform init --upgrade<CR>", desc = "Terraform init upgrade" },
+      ["<leader>Tl"] = { ":!terraform providers lock -platform=linux_amd64 -platform=darwin_amd64<CR>", desc = "Terraform lock providers linux and mac" },
+      ["<leader>Tf"] = { ":!terragrunt hclfmt<CR>", desc = "Terragrunt format" },
+      -- quick save
+      -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
+    },
+    t = {
+      -- setting a mapping to false will disable it
+      -- ["<esc>"] = false,
+    },
+  },
+
+  ["which-key"] = {
+    -- Add bindings which show up as group name
+    register_mappings = {
+      -- first key is the mode, n == normal mode
+      n = {
+        -- second key is the prefix, <leader> prefixes
+        ["<leader>"] = {
+          -- third key is the key to bring up next level and its displayed
+          -- group name in which-key top level menu
+          ["b"] = { name = "Buffer" },
+          ["r"] = { name = "Rust/RestClient" },
+          ["T"] = { name = "Terraform/Terragrunt" },
+        },
+      },
+    },
   },
 
   -- Configure plugins
   plugins = {
-    -- Add plugins, the packer syntax without the "use"
     init = {
-      -- You can disable default plugins as follows:
-      -- ["goolord/alpha-nvim"] = { disable = true },
-
-      -- You can also add new plugins here as well:
-      -- { "andweeb/presence.nvim" },
-      -- {
-      --   "ray-x/lsp_signature.nvim",
-      --   event = "BufRead",
-      --   config = function()
-      --     require("lsp_signature").setup()
-      --   end,
-      -- },
       { "python-mode/python-mode" },
       { "hashivim/vim-terraform" },
       {
@@ -182,9 +318,11 @@ local config = {
         end,
       },
     },
-    -- All other entries override the setup() call for default plugins
-    ["null-ls"] = function(config)
+    -- All other entries override the require("<key>").setup({...}) call for default plugins
+    ["null-ls"] = function(config) -- overrides `require("null-ls").setup(config)`
+      -- config variable is the default configuration table for the setup function call
       local null_ls = require "null-ls"
+
       -- Check supported formatters and linters
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
@@ -193,68 +331,71 @@ local config = {
         null_ls.builtins.formatting.stylua,
         -- null_ls.builtins.formatting.prettier,
       }
-      -- set up null-ls's on_attach function
-      config.on_attach = function(client)
-        -- NOTE: You can remove this on attach function to disable format on save
-        if client.resolved_capabilities.document_formatting then
-          vim.api.nvim_create_autocmd("BufWritePre", {
-            desc = "Auto format before save",
-            pattern = "<buffer>",
-            callback = vim.lsp.buf.formatting_sync,
-          })
-        end
-      end
       return config -- return final config table
     end,
-    treesitter = {
-      ensure_installed = { "lua" },
+    treesitter = { -- overrides `require("treesitter").setup(...)`
+      ensure_installed = {
+        "lua",
+        "python",
+        "regex",
+        "rust",
+        "sql",
+        "yaml",
+        "http",
+        "java",
+        "hcl",
+        "go",
+        "bash",
+        "c_sharp",
+        "json",
+        "json5",
+      },
     },
     -- use mason-lspconfig to configure LSP installations
-    ["mason-lspconfig"] = {
+    ["mason-lspconfig"] = { -- overrides `require("mason-lspconfig").setup(...)`
       ensure_installed = {
         "sumneko_lua",
         "rust_analyzer",
+        "pyright",
+        "terraformls",
+        "tflint",
+        "bashls",
+        "csharp_ls",
+        "ansiblels",
+        "gopls",
+        "jsonls",
+        "marksman",
+        "yamlls"
       },
     },
-    -- use mason-tool-installer to configure DAP/Formatters/Linter installation
-    ["mason-tool-installer"] = {
-      -- ensure_installed = { "prettier", "stylua" },
-      ensure_installed = {
+    -- use mason-null-ls to configure Formatters/Linter installation for null-ls sources
+    ["mason-null-ls"] = { -- overrides `require("mason-null-ls").setup(...)`
+      ensure_installed = { 
+        -- "prettier",
         "stylua",
-        "ansible-language-server",
+        "pylint",
         "autopep8",
-        "bash-language-server",
-        "cfn-lint",
-        "csharp-language-server",
-        "gopls",
-        "json-lsp",
-        "lua-language-server",
-        "marksman",
-        "prettier",
-        "pyright",
-        "rust-analyzer",
         "shellcheck",
         "shellharden",
-        "terraform-ls",
-        "tflint",
-        "typescript-language-server",
-        "yaml-language-server",
-        "yamlfmt",
+        "shfmt",
+        "markdownlint",
+        "jq",
         "yamllint",
+        "cfn_lint",
       },
-    },
-    packer = {
-      compile_path = vim.fn.stdpath "data" .. "/packer_compiled.lua",
     },
   },
 
   -- LuaSnip Options
   luasnip = {
-    -- Add paths for including more VS Code style snippets in luasnip
-    vscode_snippet_paths = {},
     -- Extend filetypes
     filetype_extend = {
-      javascript = { "javascriptreact" },
+      -- javascript = { "javascriptreact" },
+    },
+    -- Configure luasnip loaders (vscode, lua, and/or snipmate)
+    vscode = {
+      -- Add paths for including more VS Code style snippets in luasnip
+      paths = {},
     },
   },
 
@@ -273,89 +414,10 @@ local config = {
     },
   },
 
-  -- Extend LSP configuration
-  lsp = {
-    skip_setup = { "rust-analyzer" }, -- skip lsp setup because rust-tools will do it itself
-    -- enable servers that you already have installed without mason
-    servers = {
-      -- "pyright"
-    },
-    -- easily add or disable built in mappings added during LSP attaching
-    mappings = {
-      n = {
-        -- ["<leader>lf"] = false -- disable formatting keymap
-      },
-    },
-    -- add to the server on_attach function
-    -- on_attach = function(client, bufnr)
-    -- end,
-
-    -- override the lsp installer server-registration function
-    -- server_registration = function(server, opts)
-    --   require("lspconfig")[server].setup(opts)
-    -- end,
-
-    -- Add overrides for LSP server settings, the keys are the name of the server
-    ["server-settings"] = {
-      -- example for addings schemas to yamlls
-      -- yamlls = {
-      --   settings = {
-      --     yaml = {
-      --       schemas = {
-      --         ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*.{yml,yaml}",
-      --         ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
-      --         ["http://json.schemastore.org/ansible-stable-2.9"] = "roles/tasks/*.{yml,yaml}",
-      --       },
-      --     },
-      --   },
-      -- },
-    },
-  },
-
-  -- Diagnostics configuration (for vim.diagnostics.config({}))
-  diagnostics = {
-    virtual_text = true,
-    underline = true,
-  },
-
-  -- Mapping data with "desc" stored directly by vim.keymap.set().
-  --
-  -- Please use this mappings table to set keyboard mapping since this is the
-  -- lower level configuration and more robust one. (which-key will
-  -- automatically pick-up stored data by this setting.)
-  mappings = {
-    -- first key is the mode
-    n = {
-      -- second key is the lefthand side of the map
-      -- mappings seen under group name "Buffer"
-      ["<leader>bb"] = { "<cmd>tabnew<cr>", desc = "New tab" },
-      ["<leader>bc"] = { "<cmd>BufferLinePickClose<cr>", desc = "Pick to close" },
-      ["<leader>bj"] = { "<cmd>BufferLinePick<cr>", desc = "Pick to jump" },
-      ["<leader>bt"] = { "<cmd>BufferLineSortByTabs<cr>", desc = "Sort by tabs" },
-      ["<leader>bn"] = { "<cmd>BufferLineCycleNext<cr>", desc = "Cycle next tab" },
-      ["<leader>bp"] = { "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle prev tab" },
-      ["<leader>bl"] = { "<cmd>BufferLineCloseLeft<cr>", desc = "Close tabs to the left" },
-      ["<leader>br"] = { "<cmd>BufferLineCloseRight<cr>", desc = "close tabs to the right" },
-      -- mappints under group name "Rust/RestClient"
-      ["<leader>rr"] = { "<Plug>RestNvim<cr>", desc = "Run request under cursor" },
-      ["<leader>rp"] = { "<Plug>RestNvimPreview<cr>", desc = "Preview request cURL command" },
-      ["<leader>rl"] = { "<Plug>RestNvimLast<cr>", desc = "Re-run last request" },
-      ["<leader>rh"] = { "<cmd>RustHoverActions<cr>", desc = "Rust Hover Actions" },
-      -- mappings under group name "Terraform/Terragrunt"
-      ["<leader>Ti"] = { ":!terraform init<CR>", desc = "Terraform init" },
-      -- quick save
-      -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
-    },
-    t = {
-      -- setting a mapping to false will disable it
-      -- ["<esc>"] = false,
-    },
-  },
-
   -- Modify which-key registration (Use this with mappings table in the above.)
   ["which-key"] = {
     -- Add bindings which show up as group name
-    register_mappings = {
+    register = {
       -- first key is the mode, n == normal mode
       n = {
         -- second key is the prefix, <leader> prefixes
@@ -363,26 +425,15 @@ local config = {
           -- third key is the key to bring up next level and its displayed
           -- group name in which-key top level menu
           ["b"] = { name = "Buffer" },
-          ["r"] = { name = "Rust/RestClient" },
-          ["T"] = { name = "Terraform/Terragrunt" },
         },
       },
     },
   },
 
-  -- This function is run last
-  -- good place to configuring augroups/autocommands and custom filetypes
+  -- This function is run last and is a good place to configuring
+  -- augroups/autocommands and custom filetypes also this just pure lua so
+  -- anything that doesn't fit in the normal config locations above can go here
   polish = function()
-    -- Set key binding
-    -- Set autocommands
-    vim.api.nvim_create_augroup("packer_conf", { clear = true })
-    vim.api.nvim_create_autocmd("BufWritePost", {
-      desc = "Sync packer after modifying plugins.lua",
-      group = "packer_conf",
-      pattern = "plugins.lua",
-      command = "source <afile> | PackerSync",
-    })
-
     -- Set up custom filetypes
     -- vim.filetype.add {
     --   extension = {
