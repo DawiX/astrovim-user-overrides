@@ -121,6 +121,14 @@ local config = {
       ["<leader>Ti"] = { ":!terraform init --upgrade<CR>", desc = "Terraform init upgrade" },
       ["<leader>Tl"] = { ":!terraform providers lock -platform=linux_amd64 -platform=darwin_amd64<CR>", desc = "Terraform lock providers linux and mac" },
       ["<leader>Tf"] = { ":!terragrunt hclfmt<CR>", desc = "Terragrunt format" },
+      ["<leader>fw"] = {
+        function()
+          require("telescope.builtin").live_grep {
+            grep_open_files = true
+          }
+        end,
+        desc = "Search words in opened files",
+      }
     },
   },
     -- Modify which-key registration (Use this with mappings table in the above.)
