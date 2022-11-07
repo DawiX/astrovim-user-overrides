@@ -24,6 +24,9 @@ local config = {
       spell = false, -- sets vim.opt.spell
       signcolumn = "auto", -- sets vim.opt.signcolumn to auto
       wrap = false, -- sets vim.opt.wrap
+      expandtab = true,
+      tabstop = 4,
+      shiftwidth = 4,
     },
     g = {
       mapleader = " ", -- sets vim.g.mapleader
@@ -33,13 +36,13 @@ local config = {
       diagnostics_enabled = true, -- enable diagnostics at start
       status_diagnostics_enabled = true, -- enable diagnostics in statusline
       icons_enabled = true, -- disable icons in the UI (disable if no nerd font is available, requires :PackerSync after changing)
-      terraform_fmt_on_save = 1
+      terraform_fmt_on_save = 1,
     },
   },
   -- If you need more control, you can use the function()...end notation
   options = function(local_vim)
     -- vim.opt.iskeyword:append("-") equivalent:
-    local_vim.opt.iskeyword = vim.opt.iskeyword + {"-"}-- consider string-string as whole word
+    local_vim.opt.iskeyword = vim.opt.iskeyword + { "-" } -- consider string-string as whole word
     return local_vim
   end,
 
@@ -119,19 +122,22 @@ local config = {
       ["<leader>rh"] = { "<cmd>RustHoverActions<cr>", desc = "Rust Hover Actions" },
       -- mappings under group name "Terraform/Terragrunt"
       ["<leader>Ti"] = { ":!terraform init --upgrade<CR>", desc = "Terraform init upgrade" },
-      ["<leader>Tl"] = { ":!terraform providers lock -platform=linux_amd64 -platform=darwin_amd64<CR>", desc = "Terraform lock providers linux and mac" },
+      ["<leader>Tl"] = {
+        ":!terraform providers lock -platform=linux_amd64 -platform=darwin_amd64<CR>",
+        desc = "Terraform lock providers linux and mac",
+      },
       ["<leader>Tf"] = { ":!terragrunt hclfmt<CR>", desc = "Terragrunt format" },
       ["<leader>fw"] = {
         function()
           require("telescope.builtin").live_grep {
-            grep_open_files = true
+            grep_open_files = true,
           }
         end,
         desc = "Search words in opened files",
-      }
+      },
     },
   },
-    -- Modify which-key registration (Use this with mappings table in the above.)
+  -- Modify which-key registration (Use this with mappings table in the above.)
   ["which-key"] = {
     -- Add bindings which show up as group name
     register = {
@@ -247,6 +253,9 @@ local config = {
         -- Set a formatter
         null_ls.builtins.formatting.stylua,
         -- null_ls.builtins.formatting.prettier,
+        null_ls.builtins.formatting.shfmt.with {
+          extra_args = { "-i", "4" },
+        },
       }
       return config -- return final config table
     end,
@@ -282,12 +291,12 @@ local config = {
         "gopls",
         "jsonls",
         "marksman",
-        "yamlls"
+        "yamlls",
       },
     },
     -- use mason-null-ls to configure Formatters/Linter installation for null-ls sources
     ["mason-null-ls"] = { -- overrides `require("mason-null-ls").setup(...)`
-      ensure_installed = { 
+      ensure_installed = {
         -- "prettier",
         "stylua",
         "pylint",
