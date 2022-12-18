@@ -134,9 +134,9 @@ local config = {
             },
             ["<leader>aa"] = { ":set ft=yaml.ansible<CR>", desc = "Attach ansiblels manually for open file" },
         },
-        i = {
-            ["ii"] = { "<Esc>", desc = "ii to leave insert mode" },
-        },
+        -- i = {
+        --     ["ii"] = { "<Esc>", desc = "ii to leave insert mode" },
+        -- },
         v = {
             ["vv"] = { "<Esc>", desc = "vv to leave visual mode" },
         },
