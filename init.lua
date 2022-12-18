@@ -182,41 +182,36 @@ local config = {
                 end,
             },
             { "luisiacc/gruvbox-baby" },
-            { "sainnhe/gruvbox-material" },
+            -- { "sainnhe/gruvbox-material" }, -- not as nice as gruvbox-baby
             -- {
-            --     "catppuccin/nvim",
-            --     as = "catppuccin",
-            --     config = function() require("catppuccin").setup {} end,
+            --     "ellisonleao/gruvbox.nvim", -- keeping it just for reference if want to go back
+            --     as = "gruvbox",
+            --     config = function()
+            --         require("gruvbox").setup {
+            --             overrides = {
+            --                 StatusLine = {
+            --                     bg = "#303030",
+            --                     fg = "#887d73",
+            --                 },
+            --                 NeoTreeGitModified = {
+            --                     bg = "#282828",
+            --                     fg = "#83a598",
+            --                 },
+            --                 NeoTreeGitAdded = {
+            --                     bg = "#282828",
+            --                     fg = "#91e043",
+            --                 },
+            --                 NeoTreeGitDeleted = {
+            --                     bg = "#282828",
+            --                     fg = "#fb4934",
+            --                 },
+            --                 NeoTreeGitIgnored = {
+            --                     bg = "#282828",
+            --                 },
+            --             },
+            --         }
+            --     end,
             -- },
-            {
-                "ellisonleao/gruvbox.nvim",
-                as = "gruvbox",
-                config = function()
-                    require("gruvbox").setup {
-                        overrides = {
-                            StatusLine = {
-                                bg = "#303030",
-                                fg = "#887d73",
-                            },
-                            NeoTreeGitModified = {
-                                bg = "#282828",
-                                fg = "#83a598",
-                            },
-                            NeoTreeGitAdded = {
-                                bg = "#282828",
-                                fg = "#91e043",
-                            },
-                            NeoTreeGitDeleted = {
-                                bg = "#282828",
-                                fg = "#fb4934",
-                            },
-                            NeoTreeGitIgnored = {
-                                bg = "#282828",
-                            },
-                        },
-                    }
-                end,
-            },
             {
                 "NTBBloodbath/rest.nvim",
                 requires = { "nvim-lua/plenary.nvim" },
@@ -314,6 +309,13 @@ local config = {
                 "yamllint",
                 "cfn_lint",
             },
+        },
+    },
+
+    heirline = {
+        colors = {
+            bg = "#303030",
+            section_bg = "#303030",
         },
     },
 
