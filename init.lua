@@ -14,7 +14,7 @@ local config = {
         auto_quit = false, -- automatically quit the current session after a successful update
     },
     -- Set colorscheme to use
-    colorscheme = "gruvbox",
+    colorscheme = "gruvbox-baby",
     -- set vim options here (vim.<first_key>.<second_key> = value)
     options = {
         opt = {
@@ -181,11 +181,13 @@ local config = {
                     require("rust-tools").inlay_hints.enable()
                 end,
             },
-            {
-                "catppuccin/nvim",
-                as = "catppuccin",
-                config = function() require("catppuccin").setup {} end,
-            },
+            { "luisiacc/gruvbox-baby" },
+            { "sainnhe/gruvbox-material" },
+            -- {
+            --     "catppuccin/nvim",
+            --     as = "catppuccin",
+            --     config = function() require("catppuccin").setup {} end,
+            -- },
             {
                 "ellisonleao/gruvbox.nvim",
                 as = "gruvbox",
