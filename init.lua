@@ -132,6 +132,7 @@ local config = {
                 end,
                 desc = "Search words in opened files",
             },
+            ["<leader>aa"] = { ":set ft=yaml.ansible<CR>", desc = "Attach ansiblels manually for open file" },
         },
         i = {
             ["ii"] = { "<Esc>", desc = "ii to leave insert mode" },
@@ -153,6 +154,7 @@ local config = {
                     ["b"] = { name = "Buffer" },
                     ["r"] = { name = "Rust/RestClient" },
                     ["T"] = { name = "Terraform/Terragrunt" },
+                    ["a"] = { name = "Ansible" },
                 },
             },
         },
